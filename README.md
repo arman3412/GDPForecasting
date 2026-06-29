@@ -2,26 +2,20 @@
 
 Comparing an LSTM and a causal Transformer on next-quarter GDP growth forecasting
 across a 29-country OECD panel, with a focus on how each architecture behaves
-under short, noisy, data-scarce sequences rather than just which one "wins."
+under short, noisy, data-scarce sequences rather than just which one wins.
 
 ## Summary
 
 GDP forecasting from a single country's history (e.g., US-only FRED data) gives
-only ~113 quarters of data — far too little to train either architecture
+only ~113 quarters of data, far too little to train either architecture
 meaningfully. This project instead builds an 8-quarter-lookback, cross-country
 panel from the OECD SDMX API (29 countries, 3,924 country-quarters, 10 features
 per quarter), and trains both models with a shared training loop so any
 performance difference is attributable to architecture, not implementation.
 
-Both models embed country identity into a learned vector (rather than treating
-it as a raw numeric feature) and are evaluated against a naive per-country
-mean-growth baseline — not just against each other — since beating a trivial
-baseline is the real bar for "the model learned something."
+Both models embed country identity into a learned vector and are evaluated against a naive per-country
+mean-growth baseline. 
 
-**Key result:** with early stopping, both architectures beat the naive baseline
-on roughly half to three-quarters of the panel, consistently across 5 random
-seeds — but a specific subset of countries consistently resists both, for two
-distinct reasons (see writeup for the volatility analysis).
 
 ## Repo structure
 
@@ -34,6 +28,7 @@ distinct reasons (see writeup for the volatility analysis).
 | `training.py` | Shared training loop for both architectures, multi-seed runs, early stopping, naive-baseline comparison |
 | `country_failure_analysis.py` | Cross-references per-country baseline-beating results against GDP volatility and training history length |
 | `oecd_panel.csv` | The assembled dataset (see note below) |
+| `charts.py` | Creates four graphs to visualize the results |
 
 ## Setup
 
@@ -81,8 +76,3 @@ python3 country_failure_analysis.py
 - **Evaluation**: naive per-country mean-growth baseline, 5-seed aggregation,
   test set touched exactly once after all decisions were finalized on
   validation.
-
-Limitations worth noting: OECD data uses revised values rather than
-first-release vintage (some look-ahead bias), and validation/test windows
-are small (8 calendar quarters each), so results are multi-seed-averaged
-to reduce — but not eliminate — run-to-run noise.
